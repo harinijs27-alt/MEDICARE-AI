@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MEDICARE AI</title>
+
+<link rel="stylesheet" href="style.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- LOGIN SECTION -->
+
+    <section id="loginSection">
+
+        <div class="top">
+
+            <div class="logo">
+                <i class="fa-solid fa-heart-pulse"></i>
+            </div>
+
+            <h1>MEDICARE AI</h1>
+
+            <p class="subtitle">
+                Smart Healthcare Assistant
+            </p>
+
+        </div>
+
+        <div class="content">
+
+            <div class="input-group">
+                <label>👤 Patient Name</label>
+                <input
+                type="text"
+                id="patientName"
+                placeholder="Enter patient name">
+            </div>
+
+            <div class="input-group">
+                <label>🎂 Age</label>
+                <input
+                type="number"
+                id="patientAge"
+                placeholder="Enter age">
+            </div>
+
+            <div class="input-group">
+                <label>📱 Phone Number</label>
+                <input
+                type="tel"
+                id="patientPhone"
+                placeholder="+91XXXXXXXXXX">
+            </div>
+
+            <div class="input-group">
+                <label>📞 Caregiver Number</label>
+                <input
+                type="tel"
+                id="caregiverLogin"
+                placeholder="+91XXXXXXXXXX">
+            </div>
+
+            <div class="input-group">
+                <label>🌍 Language</label>
+
+                <select id="language">
+
+                    <option value="en">
+                        English
+                    </option>
+
+                    <option value="ta">
+                        தமிழ்
+                    </option>
+
+                    <option value="hi">
+                        हिन्दी
+                    </option>
+
+                    <option value="te">
+                        తెలుగు
+                    </option>
+
+                </select>
+
+            </div>
+
+            <button
+            class="btn primary"
+            onclick="loginPatient()">
+
+                Login
+
+            </button>
+
+        </div>
+
+    </section>
+
+    <!-- DASHBOARD -->
+
+    <section
+    id="dashboardSection"
+    style="display:none;">
+
+        <div class="top">
+
+            <div class="logo">
+                <i class="fa-solid fa-user-doctor"></i>
+            </div>
+
+            <h2 id="welcomeText">
+                Welcome
+            </h2>
+
+            <p class="subtitle">
+                Take Medicines On Time
+            </p>
+
+        </div>
+
+        <div class="content">
+
+            <!-- CLOCK -->
+
+            <div
+            class="clock"
+            id="clock">
+            </div>
+
+            <!-- PROFILE -->
+
+            <div class="profile-card">
+
+                <h3>
+                    Patient Profile
+                </h3>
+
+                <p id="patientProfile">
+                    Loading...
+                </p>
+
+            </div>
+
+            <!-- NEXT REMINDER -->
+
+            <div class="card next-card">
+
+                <h3>⏰</h3>
+
+                <p>
+                    Next Reminder
+                </p>
+
+                <span id="nextReminder">
+                    No Reminder
+                </span>
+
+            </div>
+
+            <!-- ACTION BUTTONS -->
+
+            <button
+            class="btn dark-btn"
+            onclick="toggleDarkMode()">
+
+                🌙 Dark Mode
+
+            </button>
+
+            <button
+            class="btn emergency"
+            onclick="logout()">
+
+                Logout
+
+            </button>
+
+            <!-- DASHBOARD STATS -->
+
+            <div class="dashboard-grid">
+
+                <div class="card">
+                    <h3>💊</h3>
+                    <p>Total Medicines</p>
+                    <span id="totalMedicine">0</span>
+                </div>
+
+                <div class="card">
+                    <h3>✅</h3>
+                    <p>Taken</p>
+                    <span id="takenCount">0</span>
+                </div>
+
+                <div class="card">
+                    <h3>❌</h3>
+                    <p>Missed</p>
+                    <span id="missedCount">0</span>
+                </div>
+
+                <div class="card">
+                    <h3>📊</h3>
+                    <p>Adherence</p>
+                    <span id="adherence">0%</span>
+                </div>
+
+            </div>
+
+            <!-- ADD MEDICINE -->
+
+            <h2 class="section-title">
+                Add Medicine
+            </h2>
+
+            <div class="input-group">
+                <label>💊 Medicine Name</label>
+                <input
+                type="text"
+                id="medicineName"
+                placeholder="Medicine Name">
+            </div>
+
+            <div class="input-group">
+                <label>💉 Dosage</label>
+                <input
+                type="text"
+                id="dosage"
+                placeholder="1 Tablet">
+            </div>
+
+            <div class="input-group">
+                <label>⏰ Reminder Time</label>
+                <input
+                type="time"
+                id="medicineTime">
+            </div>
+
+            <button
+            class="btn primary"
+            onclick="addMedicine()">
+
+                ➕ Add Medicine
+
+            </button>
+
+            <!-- MEDICINES -->
+
+            <div class="medicine-list">
+
+                <h2 class="section-title">
+                    Today's Medicines
+                </h2>
+
+                <ul id="medicineList">
+                </ul>
+
+            </div>
+
+            <!-- QUICK ACTIONS -->
+
+            <div class="button-row">
+
+                <button
+                class="btn emergency"
+                onclick="callCaregiver()">
+
+                    Call Caregiver
+
+                </button>
+
+                <button
+                class="btn ambulance"
+                onclick="callAmbulance()">
+
+                    Ambulance
+
+                </button>
+
+            </div>
+
+            <!-- HEALTH TIP -->
+
+            <div class="ai-card">
+
+                🤖 AI Health Tip
+
+                <br><br>
+
+                Drink enough water,
+                sleep properly,
+                and never skip your medicines.
+
+            </div>
+
+            <!-- REPORT -->
+
+            <div class="report-card">
+
+                <h2>
+                    📋 Medicine Report
+                </h2>
+
+                <div class="dashboard-grid">
+
+                    <div class="card">
+                        <h3>💊</h3>
+                        <p>Total</p>
+                        <span id="reportTotal">0</span>
+                    </div>
+
+                    <div class="card">
+                        <h3>✅</h3>
+                        <p>Taken</p>
+                        <span id="reportTaken">0</span>
+                    </div>
+
+                    <div class="card">
+                        <h3>❌</h3>
+                        <p>Missed</p>
+                        <span id="reportMissed">0</span>
+                    </div>
+
+                    <div class="card">
+                        <h3>📊</h3>
+                        <p>Adherence</p>
+                        <span id="reportAdherence">0%</span>
+                    </div>
+
+                </div>
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Medicine</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="reportTable">
+                    </tbody>
+
+                </table>
+
+                <button
+                class="btn primary"
+                onclick="downloadReport()">
+
+                    Download Report
+
+                </button>
+
+            </div>
+
+            <!-- LOGS -->
+
+            <div class="logs">
+
+                <h3>
+                    📜 Activity Logs
+                </h3>
+
+                <ul id="logList">
+                </ul>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+<audio
+id="alarm"
+src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-tone-996.mp3">
+</audio>
+
+<script src="script.js"></script>
+
+</body>
+</html>
