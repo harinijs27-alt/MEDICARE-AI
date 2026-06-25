@@ -1,834 +1,347 @@
 let medicines =
-JSON.parse(
-localStorage.getItem("medicines")
-) || [];
+JSON.parse(localStorage.getItem("medicines")) || [];
 
 let activeReminder = null;
 let reminderLoop;
 
 // CLOCK
-
 function updateClock(){
-
-  const clock =
-  document.getElementById("clock");
-
+  const clock = document.getElementById("clock");
   if(clock){
-
-    clock.innerHTML =
-    new Date().toLocaleTimeString();
-
+    clock.innerHTML = new Date().toLocaleTimeString();
   }
-
 }
-
-setInterval(
-updateClock,
-1000
-);
+setInterval(updateClock, 1000);
 
 // LOGIN
-
 function loginPatient(){
 
-  const name =
-  document.getElementById(
-  "patientName"
-  ).value;
+  const name = document.getElementById("patientName").value;
+  const age = document.getElementById("patientAge").value;
+  const phone = document.getElementById("patientPhone").value;
+  const caregiver = document.getElementById("caregiverLogin").value;
 
-  const age =
-  document.getElementById(
-  "patientAge"
-  ).value;
-
-  const phone =
-  document.getElementById(
-  "patientPhone"
-  ).value;
-
-  const caregiver =
-  document.getElementById(
-  "caregiverLogin"
-  ).value;
-
-  if(
-    !name ||
-    !age ||
-    !phone ||
-    !caregiver
-  ){
-
-    alert(
-    "Please fill all fields"
-    );
-
+  if(!name || !age || !phone || !caregiver){
+    alert("Please fill all fields");
     return;
-
   }
 
-  localStorage.setItem(
-  "patientName",
-  name
-  );
+  localStorage.setItem("patientName", name);
+  localStorage.setItem("patientAge", age);
+  localStorage.setItem("patientPhone", phone);
+  localStorage.setItem("caregiver", caregiver);
 
-  localStorage.setItem(
-  "patientAge",
-  age
-  );
+  document.getElementById("loginSection").style.display = "none";
+  document.getElementById("dashboardSection").style.display = "block";
 
-  localStorage.setItem(
-  "patientPhone",
-  phone
-  );
-
-  localStorage.setItem(
-  "caregiver",
-  caregiver
-  );
-
-  document.getElementById(
-  "loginSection"
-  ).style.display =
-  "none";
-
-  document.getElementById(
-  "dashboardSection"
-  ).style.display =
-  "block";
-
-  document.getElementById(
-  "welcomeText"
-  ).innerHTML =
-  `👋 Hi, ${name}!`;
+  document.getElementById("welcomeText").innerHTML = `👋 Hi, ${name}!`;
 
   loadProfile();
-
   loadMedicines();
-
   loadLogs();
-
 }
 
 // AUTO LOGIN
-
 window.onload = function(){
 
   updateClock();
 
-  const patient =
-  localStorage.getItem(
-  "patientName"
-  );
+  const patient = localStorage.getItem("patientName");
 
   if(patient){
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("dashboardSection").style.display = "block";
 
-    document.getElementById(
-    "loginSection"
-    ).style.display =
-    "none";
-
-    document.getElementById(
-    "dashboardSection"
-    ).style.display =
-    "block";
-
-    document.getElementById(
-    "welcomeText"
-    ).innerHTML =
-    `👋 Hi, ${patient}!`;
+    document.getElementById("welcomeText").innerHTML = `👋 Hi, ${patient}!`;
 
     loadProfile();
-
     loadMedicines();
-
     loadLogs();
-
   }
-
-}
+};
 
 // PROFILE
-
 function loadProfile(){
 
-  const profile =
-  document.getElementById(
-  "patientProfile"
-  );
-
+  const profile = document.getElementById("patientProfile");
   if(!profile) return;
 
   profile.innerHTML =
-
-  `
-  Name :
-  ${localStorage.getItem("patientName")}
-  <br><br>
-
-  Age :
-  ${localStorage.getItem("patientAge")}
-  <br><br>
-
-  Phone :
-  ${localStorage.getItem("patientPhone")}
-  `;
-
+  `Name : ${localStorage.getItem("patientName")} <br><br>
+   Age : ${localStorage.getItem("patientAge")} <br><br>
+   Phone : ${localStorage.getItem("patientPhone")}`;
 }
 
 // ADD MEDICINE
-
 function addMedicine(){
 
-  const name =
-  document.getElementById(
-  "medicineName"
-  ).value;
+  const name = document.getElementById("medicineName").value;
+  const dosage = document.getElementById("dosage").value;
+  const time = document.getElementById("medicineTime").value;
 
-  const dosage =
-  document.getElementById(
-  "dosage"
-  ).value;
-
-  const time =
-  document.getElementById(
-  "medicineTime"
-  ).value;
-
-  if(
-    !name ||
-    !dosage ||
-    !time
-  ){
-
-    alert(
-    "Fill all medicine details"
-    );
-
+  if(!name || !dosage || !time){
+    alert("Fill all medicine details");
     return;
-
   }
 
   medicines.push({
-
-    name:name,
-
-    dosage:dosage,
-
-    time:time,
-
-    status:"Pending"
-
+    name,
+    dosage,
+    time,
+    status: "Pending"
   });
 
-  localStorage.setItem(
+  localStorage.setItem("medicines", JSON.stringify(medicines));
 
-  "medicines",
+  addLog(`${name} added`);
 
-  JSON.stringify(
-  medicines
-  )
-
-  );
-
-  addLog(
-  `${name} added`
-  );
-
-  document.getElementById(
-  "medicineName"
-  ).value = "";
-
-  document.getElementById(
-  "dosage"
-  ).value = "";
-
-  document.getElementById(
-  "medicineTime"
-  ).value = "";
+  document.getElementById("medicineName").value = "";
+  document.getElementById("dosage").value = "";
+  document.getElementById("medicineTime").value = "";
 
   loadMedicines();
-
 }
 
 // LOAD MEDICINES
-
 function loadMedicines(){
 
-  const list =
-  document.getElementById(
-  "medicineList"
-  );
+  const list = document.getElementById("medicineList");
+  const report = document.getElementById("reportTable");
 
-  const report =
-  document.getElementById(
-  "reportTable"
-  );
-
-  if(!list || !report)
-  return;
+  if(!list || !report) return;
 
   list.innerHTML = "";
-
   report.innerHTML = "";
 
-  medicines.forEach(
+  medicines.forEach((med,index)=>{
 
-  (med,index)=>{
-
-    const li =
-    document.createElement(
-    "li"
-    );
+    const li = document.createElement("li");
 
     li.innerHTML =
+    `<b>${med.name}</b><br>
+     Dosage : ${med.dosage}<br>
+     Time : ${med.time}<br><br>
+     Status : ${med.status}<br><br>
 
-    `
-    <b>${med.name}</b>
-    <br>
-
-    Dosage :
-    ${med.dosage}
-
-    <br>
-
-    Time :
-    ${med.time}
-
-    <br><br>
-
-    Status :
-    ${med.status}
-
-    <br><br>
-
-    <button
-    class="btn success"
-    onclick="markTaken(${index})">
-
-    Taken
-
-    </button>
-
-    `;
+     <button class="btn success" onclick="markTaken(${index})">
+     Taken
+     </button>`;
 
     list.appendChild(li);
 
-    const row =
-    document.createElement(
-    "tr"
-    );
+    const row = document.createElement("tr");
 
     row.innerHTML =
+    `<td>${med.name}</td>
+     <td>${med.time}</td>
+     <td>${med.status}</td>`;
 
-    `
-    <td>${med.name}</td>
-    <td>${med.time}</td>
-    <td>${med.status}</td>
-    `;
-
-    report.appendChild(
-    row
-    );
-
+    report.appendChild(row);
   });
 
   updateDashboard();
-
 }
-// =========================
-// MEDICARE AI
-// PART 2
-// =========================
 
 // DASHBOARD
-
 function updateDashboard(){
 
-  const total =
-  medicines.length;
+  const total = medicines.length;
+  const taken = medicines.filter(m => m.status === "Taken").length;
+  const missed = medicines.filter(m => m.status === "Missed").length;
 
-  const taken =
-  medicines.filter(
-  med =>
-  med.status === "Taken"
-  ).length;
+  let adherence = total > 0 ? Math.round((taken / total) * 100) : 0;
 
-  const missed =
-  medicines.filter(
-  med =>
-  med.status === "Missed"
-  ).length;
-
-  let adherence = 0;
-
-  if(total > 0){
-
-    adherence =
-    Math.round(
-    (taken / total) * 100
-    );
-
-  }
-
-  document.getElementById(
-  "totalMedicine"
-  ).innerHTML =
-  total;
-
-  document.getElementById(
-  "takenCount"
-  ).innerHTML =
-  taken;
-
-  document.getElementById(
-  "missedCount"
-  ).innerHTML =
-  missed;
-
-  document.getElementById(
-  "adherence"
-  ).innerHTML =
-  adherence + "%";
-
-  const reportTotal =
-  document.getElementById(
-  "reportTotal"
-  );
-
-  if(reportTotal){
-
-    document.getElementById(
-    "reportTotal"
-    ).innerHTML =
-    total;
-
-    document.getElementById(
-    "reportTaken"
-    ).innerHTML =
-    taken;
-
-    document.getElementById(
-    "reportMissed"
-    ).innerHTML =
-    missed;
-
-    document.getElementById(
-    "reportAdherence"
-    ).innerHTML =
-    adherence + "%";
-
-  }
-
+  document.getElementById("totalMedicine").innerHTML = total;
+  document.getElementById("takenCount").innerHTML = taken;
+  document.getElementById("missedCount").innerHTML = missed;
+  document.getElementById("adherence").innerHTML = adherence + "%";
 }
 
 // MARK TAKEN
-
 function markTaken(index){
 
-  medicines[index].status =
-  "Taken";
+  medicines[index].status = "Taken";
 
-  localStorage.setItem(
+  localStorage.setItem("medicines", JSON.stringify(medicines));
 
-  "medicines",
-
-  JSON.stringify(
-  medicines
-  )
-
-  );
-
-  const audio =
-  document.getElementById(
-  "alarm"
-  );
-
+  const audio = document.getElementById("alarm");
   if(audio){
-
     audio.pause();
-
     audio.currentTime = 0;
-
   }
 
   speechSynthesis.cancel();
 
-clearInterval(reminderLoop);
+  clearInterval(reminderLoop);
+  activeReminder = null;
 
-activeReminder = null;
-
-  addLog(
-
-  medicines[index].name +
-  " taken"
-
-  );
+  addLog(medicines[index].name + " taken");
 
   loadMedicines();
-
 }
 
 // LOGS
-
 function addLog(message){
 
-  let logs =
-  JSON.parse(
+  let logs = JSON.parse(localStorage.getItem("logs")) || [];
 
-  localStorage.getItem(
-  "logs"
-  )
+  logs.unshift(new Date().toLocaleString() + " - " + message);
 
-  ) || [];
-
-  logs.unshift(
-
-  new Date()
-  .toLocaleString()
-
-  +
-
-  " - "
-
-  +
-
-  message
-
-  );
-
-  localStorage.setItem(
-
-  "logs",
-
-  JSON.stringify(
-  logs
-  )
-
-  );
+  localStorage.setItem("logs", JSON.stringify(logs));
 
   loadLogs();
-
 }
 
 function loadLogs(){
 
-  const list =
-  document.getElementById(
-  "logList"
-  );
-
-  if(!list)
-  return;
+  const list = document.getElementById("logList");
+  if(!list) return;
 
   list.innerHTML = "";
 
-  const logs =
-  JSON.parse(
-
-  localStorage.getItem(
-  "logs"
-  )
-
-  ) || [];
+  const logs = JSON.parse(localStorage.getItem("logs")) || [];
 
   logs.forEach(log=>{
-
-    const li =
-    document.createElement(
-    "li"
-    );
-
+    const li = document.createElement("li");
     li.innerHTML = log;
-
-    list.appendChild(
-    li
-    );
-
+    list.appendChild(li);
   });
-
 }
 
-// REMINDER CHECKER
-
+// CHECK REMINDERS
 function checkReminders(){
 
-  const currentTime =
+  const currentTime = new Date().toTimeString().substring(0,5);
 
-  new Date()
-  .toTimeString()
-  .substring(0,5);
+  medicines.forEach((medicine,index)=>{
 
-  medicines.forEach(
-
-  (medicine,index)=>{
-
-    if(
-
-      medicine.time ===
-      currentTime
-
-      &&
-
-      medicine.status ===
-      "Pending"
-
-    ){
-
-      triggerReminder(
-      medicine,
-      index
-      );
-
+    if(medicine.time === currentTime && medicine.status === "Pending"){
+      triggerReminder(medicine,index);
     }
 
   });
 
 }
-
-setInterval(
-checkReminders,
-1000
-);
+setInterval(checkReminders,1000);
 
 // REMINDER
+function triggerReminder(medicine,index){
 
-function triggerReminder(
-medicine,
-index
-){
+  if(activeReminder === index) return;
 
-  if(
-    activeReminder === index
-  ){
-    return;
-  }
+  activeReminder = index;
 
-  activeReminder =
-  index;
+  const audio = document.getElementById("alarm");
 
-  const audio =
-  document.getElementById(
-  "alarm"
-  );
-
-  reminderLoop =
-  setInterval(()=>{
+  reminderLoop = setInterval(()=>{
 
     if(audio){
-
       audio.currentTime = 0;
-
       audio.play();
-
     }
 
-    const speech =
-    new SpeechSynthesisUtterance(
-
+    const speech = new SpeechSynthesisUtterance(
       `Time to take ${medicine.name}`
-
     );
 
-    speech.lang =
-    "en-US";
-
-    speechSynthesis.speak(
-      speech
-    );
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
 
   },5000);
 
-  document.getElementById(
-  "nextReminder"
-  ).innerHTML =
+  document.getElementById("nextReminder").innerHTML =
+  `${medicine.name} (${medicine.time})`;
 
-  medicine.name +
-  " (" +
-  medicine.time +
-  ")";
-
-  addLog(
-
-    "Reminder started for " +
-    medicine.name
-
-  );
+  addLog("Reminder started for " + medicine.name);
 
   setTimeout(()=>{
 
-    clearInterval(
-      reminderLoop
-    );
+    clearInterval(reminderLoop);
 
-    if(
+    if(medicines[index].status === "Pending"){
 
-      medicines[index]
-      .status ===
-      "Pending"
+      medicines[index].status = "Missed";
 
-    ){
+      localStorage.setItem("medicines", JSON.stringify(medicines));
 
-      medicines[index]
-      .status =
-      "Missed";
+      addLog(medicine.name + " missed");
 
-      localStorage.setItem(
+      sendMissedSMS(medicine);
 
-        "medicines",
-
-        JSON.stringify(
-          medicines
-        )
-
-      );
-
-      addLog(
-
-        medicine.name +
-        " missed"
-
-      );
-
-      const caregiver =
-
-      localStorage.getItem(
-        "caregiver"
-      );
-
-      if(caregiver){
-
-        window.location.href =
-        `tel:${caregiver}`;
-
-      }
+      setTimeout(()=>{
+        window.location.href = `tel:${localStorage.getItem("caregiver")}`;
+      },3000);
 
       loadMedicines();
-
     }
 
   },60000);
-
 }
 
-// DARK MODE
+// ✔️ NEW SMS FUNCTION (IMPORTANT)
+function sendMissedSMS(medicine){
 
-function toggleDarkMode(){
-
-  document.body
-  .classList.toggle(
-  "dark-mode"
-  );
-
-}
-
-// CALL CAREGIVER
-
-function callCaregiver(){
-
-  const caregiver =
-
-  localStorage.getItem(
-  "caregiver"
-  );
-
-  if(caregiver){
+  const caregiver = localStorage.getItem("caregiver");
+  if(!caregiver) return;
 
   const smsText =
   encodeURIComponent(
-
-    `Medicine Missed Alert
-
-Medicine: ${medicine.name}
-
-Time: ${medicine.time}
-
-Patient did not mark the medicine as taken within 1 minute.`
-
+    `Medicine Missed Alert\n` +
+    `Medicine: ${medicine.name}\n` +
+    `Time: ${medicine.time}\n` +
+    `Patient missed dose.`
   );
 
   window.location.href =
   `sms:${caregiver}?body=${smsText}`;
-
-  setTimeout(()=>{
-
-    window.location.href =
-    `tel:${caregiver}`;
-
-  },3000);
-
 }
 
+// DARK MODE
+function toggleDarkMode(){
+  document.body.classList.toggle("dark-mode");
+}
+
+// CALL CAREGIVER MANUAL
+function callCaregiver(){
+
+  const caregiver = localStorage.getItem("caregiver");
+
+  if(caregiver){
+
+    const smsText =
+    encodeURIComponent("Please check patient status.");
+
+    window.location.href =
+    `sms:${caregiver}?body=${smsText}`;
+
+  }
 }
 
 // AMBULANCE
-
 function callAmbulance(){
-
-  addLog(
-  "Calling ambulance"
-  );
-
-  window.location.href =
-  "tel:108";
-
+  addLog("Calling ambulance");
+  window.location.href = "tel:108";
 }
 
-// DOWNLOAD REPORT
-
+// REPORT DOWNLOAD
 function downloadReport(){
 
-  let reportText =
+  let reportText = "MEDICARE AI REPORT\n\n";
 
-  "MEDICARE AI REPORT\n\n";
-
-  medicines.forEach(
-  medicine=>{
-
-    reportText +=
-
-    medicine.name +
-    " | " +
-
-    medicine.time +
-    " | " +
-
-    medicine.status +
-    "\n";
-
+  medicines.forEach(m=>{
+    reportText += `${m.name} | ${m.time} | ${m.status}\n`;
   });
 
-  const blob =
+  const blob = new Blob([reportText], {type:"text/plain"});
 
-  new Blob(
-  [reportText],
-  {type:"text/plain"}
-  );
-
-  const a =
-  document.createElement(
-  "a"
-  );
-
-  a.href =
-  URL.createObjectURL(
-  blob
-  );
-
-  a.download =
-  "Medicine_Report.txt";
-
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "Medicine_Report.txt";
   a.click();
-
 }
 
 // LOGOUT
-
 function logout(){
-
-  localStorage.removeItem(
-  "patientName"
-  );
-
+  localStorage.removeItem("patientName");
   location.reload();
-
 }
