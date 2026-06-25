@@ -733,14 +733,30 @@ function callCaregiver(){
 
   if(caregiver){
 
-    addLog(
-    "Calling caregiver"
-    );
+  const smsText =
+  encodeURIComponent(
+
+    `Medicine Missed Alert
+
+Medicine: ${medicine.name}
+
+Time: ${medicine.time}
+
+Patient did not mark the medicine as taken within 1 minute.`
+
+  );
+
+  window.location.href =
+  `sms:${caregiver}?body=${smsText}`;
+
+  setTimeout(()=>{
 
     window.location.href =
     `tel:${caregiver}`;
 
-  }
+  },3000);
+
+}
 
 }
 
